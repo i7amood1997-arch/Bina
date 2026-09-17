@@ -2,7 +2,7 @@
 
 PWA for tracking every cost and document of one house build, shared by two users with equal access. Arabic RTL UI, TypeScript + Vite, Supabase for data, Google Drive for files, Claude API for document reading.
 
-Built from the spec doc "House Build Manager — Build Spec". This release covers **Phase 1 (MVP)** plus variations and the printable vendor statement from Phase 2.
+Built from the spec doc "House Build Manager — Build Spec". This release covers **Phases 1–3**: MVP, variations, printable vendor statement, retention, warranties and the site photo log.
 
 ## Try it first (demo mode)
 
@@ -26,6 +26,7 @@ Open the printed URL. Run the tests with `npm test` (financial engine, all amoun
 1. SQL Editor → run, in order:
    - `supabase/migrations/001_schema.sql`
    - `supabase/migrations/002_security_audit.sql` (enable the **pg_cron** extension first: Database → Extensions)
+   - `supabase/migrations/004_phase3.sql`
 2. Authentication → URL Configuration → add the Pages URL to **Redirect URLs**.
 3. Authentication → Email Templates → **Magic Link**: add the code so login also works inside the home-screen app:
    ```html
@@ -89,6 +90,12 @@ public/                manifest, service worker, icons
 - **Login** accepts the magic link or the 6-digit code from the same email.
 - **Contingency** is 10% of remaining unpaid amounts (open question in the spec; change the formula in `engine.ts → projectFigures` if you prefer 10% of total).
 
+## Phase 3 features
+
+- **Retention:** set "نسبة المحتجز" on a contract. Each payment then suggests the held amount (`paid × pct ÷ (100 − pct)`), the commitment page shows the total held, and "تسجيل الإفراج" records the release.
+- **Warranties:** item, vendor/contract, start date, duration, certificate. Home shows an alert 60 days before expiry.
+- **Site log:** dated visits with stage, note and photos (stored as `site_photo` documents in Drive), shown as a timeline grouped by stage.
+
 ## Not in this release
 
-Retention release screen, warranties, site photo log, push notifications (Phase 3). The tables `hb_warranties` and `hb_site_log` already exist.
+Web Push notifications. They need a server-side sender (a Supabase Edge Function + VAPID keys + a cron job). Until then, alerts appear inside the app: due milestones, missing proof, expiring warranties, and the badge for the other user's activity.
